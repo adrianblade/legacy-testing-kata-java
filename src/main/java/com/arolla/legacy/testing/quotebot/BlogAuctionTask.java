@@ -14,11 +14,33 @@ public class BlogAuctionTask {
 		marketDataRetriever = new MarketStudyVendor();
 	}
 
+	public BlogAuctionTask(MarketStudyVendor marketDataRetriever) {
+		this.marketDataRetriever = marketDataRetriever;
+	}
+
 	@SuppressWarnings("deprecation")
 	public void PriceAndPublish(String blog, String mode) {
 		double avgPrice = marketDataRetriever.averagePrice(blog);
-		// FIXME should actually be +2 not +1
-		double proposal = avgPrice + 1;
+		double proposal = getProposal(avgPrice, mode);
+		getQuotePubliser().publish(proposal);
+	}
+
+	protected QuotePublisher getQuotePubliser() {
+		return QuotePublisher.INSTANCE;
+	}
+
+	private double getProposal(double avgPrice, String mode) {
+		if (avgPrice % 2 == 0){
+			return 3.14 * (avgPrice + 2);
+		} else {
+			return 3.15
+					* getTimeFactor(mode)
+					* (getCurrentTime() - new Date(2000, Calendar.JANUARY, 1)
+					.getTime());
+		}
+	}
+
+	private double getTimeFactor (String mode) {
 		double timeFactor = 1;
 		if (mode.equals("SLOW")) {
 			timeFactor = 2;
@@ -32,10 +54,10 @@ public class BlogAuctionTask {
 		if (mode.equals("ULTRAFAST")) {
 			timeFactor = 13;
 		}
-		proposal = proposal % 2 == 0 ? 3.14 * proposal : 3.15
-				* timeFactor
-				* (new Date().getTime() - new Date(2000, Calendar.JANUARY, 1)
-						.getTime());
-		QuotePublisher.INSTANCE.publish(proposal);
+		return timeFactor;
+	}
+
+	protected long getCurrentTime() {
+		return new Date().getTime();
 	}
 }
