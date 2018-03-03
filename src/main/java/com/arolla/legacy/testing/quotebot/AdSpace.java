@@ -3,6 +3,7 @@ package com.arolla.legacy.testing.quotebot;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class AdSpace implements IAdSpace{
 
@@ -17,9 +18,18 @@ public class AdSpace implements IAdSpace{
 		if (cache.containsKey("blogs list")) {
 			return cache.get("blogs list");
 		}
-		// FIXME : only return blogs that start with a 'T'
-		Collection<String> listAllBlogs = TechBlogs.listAllBlogs();
+		// FIXED : only return blogs that start with a 'T'
+		Collection<String> listAllBlogs = getListAllBlogs();
+		listAllBlogs
+				.stream()
+				.filter(u->u.startsWith("T"))
+				.collect(Collectors.toList());
 		cache.put("blogs list", listAllBlogs);
+
 		return listAllBlogs;
+	}
+
+	protected Collection<String> getListAllBlogs() {
+		return TechBlogs.listAllBlogs();
 	}
 }
